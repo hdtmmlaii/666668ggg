@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>C666 | HOME + KEY</title>
+<link href="https://i.imgur.com/R4YNDY5.jpg" rel="shortcut icon" type="image/x-icon"/>
+<link href="c6.ss" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+<link href="index.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<style>
+	#keyBox {
+  width: 90%;
+  max-width: 600px;
+  margin: 10px auto;
+  border: 2px solid red;
+  padding: 10px;
+  border-radius: 10px;
+  background: #333;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+}
+
+#typingKey {
+  display: block;
+  white-space: normal !important; /* bắt buộc wrap */
+  word-break: break-all;          /* cắt từ bất kỳ nếu quá dài */
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.cursor {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  animation: blink 0.7s infinite;
+}
+
+ .rainbow {
+  font: 900 28px/1.2 system-ui, sans-serif; /* giảm size xuống 28px */
+  background: linear-gradient(90deg,
+    red, orange, yellow, green, cyan, blue, violet);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.rainbow.animate {
+  background-size: 200% auto;
+  animation: flow 3s linear infinite;
+}
+
+@keyframes flow {
+  to { background-position: 200% center; }
+}
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow-x: hidden; }
+    #bg-video { position: fixed; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index:-1; }
+    .loading-container { text-align: center; padding: 20px; border: 2px solid #ef8682; border-radius: 10px;
+      background-color: rgba(0,0,0,0.6); animation: pulse 1.5s infinite; width:80vw; max-width:400px; margin: 20px auto; }
+    @keyframes pulse { 0%,100%{border-color:#ef8682;} 50%{border-color:#e9514d;} }
+    h1 {color:#03fcec; font-size:28px; margin-bottom:20px;}
+    .key-container {display:flex; flex-direction:column; align-items:center;}
+    input {text-align:center; width:80%; padding:12px; margin-bottom:20px;
+      border:2px solid #fc0303; border-radius:8px; font-size:16px;}
+    button {background:#ef8682; color:#fff; padding:12px 24px;
+      border:none; border-radius:8px; cursor:pointer; font-size:16px;}
+    button:hover {background:#e9514d;}
+    .footer {text-align:center; margin-top:20px; color:#ccc; font-size:14px;}
+  
+#typingIntro {
+  display: block;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+
+
+.TieuSu {
+  text-align: center;
+}
+#typingIntro, .cursor {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  display: inline-block;
+}
+
+</style>
+
+  <style>
+    /* ===== 4D Background + Glass + Tilt ===== */
+    html, body { height: 100%; }
+    body {
+      margin:0;
+      color:#fff;
+      background: radial-gradient(1200px 600px at 10% 10%, #151515, transparent),
+                  radial-gradient(1000px 500px at 90% 90%, #0b0b0b, transparent),
+                  linear-gradient(135deg, #111, #222);
+      overflow-x:hidden;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    }
+    .bg-anim{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(600px 300px at 20% 30%, rgba(0,255,200,0.08), transparent),
+                  radial-gradient(700px 350px at 80% 70%, rgba(255,0,120,0.08), transparent);
+      animation: floatbg 12s ease-in-out infinite alternate;
+      filter: blur(40px);
+      transform: translateZ(0);
+      z-index: 0;
+    }
+    @keyframes floatbg {
+      from { transform: translate3d(-10px, -10px, 0); }
+      to   { transform: translate3d(10px, 10px, 0);  }
+    }
+    /* Glass cards (apply this class to main boxes if needed) */
+    .glass-card{
+      background: rgba(25,25,25,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    /* Tilt base */
+    [data-tilt]{
+      transform: perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0);
+      transition: transform .2s ease, box-shadow .3s ease;
+      will-change: transform;
+    }
+    /* Buttons modern look */
+    .btn-3d{
+      background: linear-gradient(135deg, #06b6d4, #14b8a6);
+      color:#fff;
+      border:0;
+      border-radius: 12px;
+      padding:12px 16px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+      cursor:pointer;
+      transition: transform .1s ease, box-shadow .2s ease, filter .2s ease;
+    }
+    .btn-3d:active{
+      transform: translateY(1px) scale(.98);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+    }
+    /* Make sure main containers appear above background */
+    main, header, .container, .wrapper, #notificationPopup, #downloadTools { position: relative; z-index: 1; }
+  </style>
+
+
+<style>
+  /* ===== 4D Background & Tilt ===== */
+  .bg-anim{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(600px 300px at 20% 30%, rgba(0,255,200,0.08), transparent),
+                radial-gradient(700px 350px at 80% 70%, rgba(255,0,120,0.08), transparent);
+    animation: floatbg 12s ease-in-out infinite alternate;
+    filter: blur(40px);
+    transform: translateZ(0);
+    z-index: -1;
+  }
+  @keyframes floatbg {
+    from { transform: translate3d(-10px, -10px, 0); }
+    to   { transform: translate3d(10px, 10px, 0); }
+  }
+  .glass-card {
+    background: rgba(25,25,25,0.6) !important;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+    backdrop-filter: blur(6px);
+  }
+  [data-tilt]{
+    transform: perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0);
+    transition: transform .2s ease, box-shadow .3s ease;
+    will-change: transform;
+  }
+  .btn-3d{
+    background: linear-gradient(135deg, #06b6d4, #14b8a6) !important;
+    color:#fff !important;
+    border:0 !important;
+    border-radius: 12px !important;
+    padding:12px 16px !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+    cursor:pointer;
+    transition: transform .1s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .btn-3d:active{
+    transform: translateY(1px) scale(.98);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+  }
+</style>
+
+
+<style>
+/* Rainbow button */
+.rainbow-btn {
+  background: linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
+  background-size: 1400% 1400%;
+  animation: rainbow 8s ease infinite;
+  color: #fff !important;
+  font-weight: bold;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px 0;
+  border-radius: 8px;
+  display: block;
+  width: 100%;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.rainbow-btn:hover {
+  transform: scale(1.05);
+}
+@keyframes rainbow {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* Gradient title */
+.gradient-title {
+  font-weight: bold;
+  font-size: 18px;
+  background: linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00ab);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hue 3s infinite linear;
+}
+@keyframes hue {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+/* Marquee text */
+.marquee {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.marquee span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 15s linear infinite;
+}
+@keyframes marquee {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(-100%, 0); }
+}
+</style>
+
+
+<style>
+#modalTitle {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: red;
+  margin-bottom: 12px; /* khoảng cách xuống nội dung */
+}
+#modalMessage {
+  text-align: center;
+  font-size: 16px;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+</style>
+
+</head>
+<body class="Border">
+  <div class=\"bg-anim\"><div id="vip-titles" style="margin-top:10px;text-align:center;font-size:18px;font-weight:bold;color:#ff6600;"></div>
+</div>
+  <div class=\"bg-anim\"></div>
+<div id="notification-box" style="
+    display:none;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 12px;
+    border-radius: 12px;
+    margin: 15px auto;
+    width: 80%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    animation: fadeIn 1s ease-in-out;">
+</div>
+<style>
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(-20px);}
+  to {opacity:1; transform: translateY(0);}
+}
+</style>
+    
+<video autoplay="" id="bg-video" loop="" muted="">
+<source src="c.mp4" type="video/mp4"/>
+</video>
+<audio autoplay="" id="backgroundMusic" loop="">
+<source src="k.mp3" type="audio/mpeg"/>
+</audio>
+<button id="musicButton" onclick="toggleMusic()" style="position:fixed; top:20px; right:20px; z-index:1000; padding:10px 20px; border:none; border-radius:8px; background:#ef8682; color:#fff; font-size:16px; cursor:pointer;">
+    Tắt nhạc
+  </button>
+<div class="BlurWebs">
+<div class="Topnav">
+<a class="Active">HOME</a><a href="javascript:void(0)" onclick="openDownload()">Download Tool</a>
+<a style="color:red;"><span id="fps">60.0</span> FPS</a>
+</div>
+<p align="center">
+<img id="avatar" class="Blob" height="96" src="https://i.pinimg.com/originals/bd/0a/83/bd0a831c21dca4f865a6a8cc6ee66fab.gif" width="96"/>
+</p>
+<h2 align="center" class="NameFtc666">ZILC<i class="fa fa-check-circle"></i></h2>
+<h2 class="TieuSu"><div id="typingIntro"></div><span class="cursor">|</span></h2>
+<hr class="New"/>
+<!-- Giữ nguyên phần contact + bank + skills... -->
+</div>
+<div 'style="" class="loading-container" font-size:18px'="">
+<h3 class="rainbow animate">KEY NGÀY HÔM NAY LÀ </h3>
+<div class="key-container">
+<div id="keyBox">
+  <div id="typingKey"></div>
+  <div class="cursor">|</div>
+</div>
+
+<button onclick="copyToClipboard()">Copy Key</button>
+<div id="btnRow" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px auto 0;max-width:600px;"></div>
+
+<div id="dateDisplay" style="margin-top:10px; font-size:18px; color:#fff;"></div>
+<div class="footer">
+<b>Copyright By 
+        <a class="admin-link" href="https://t.me/n0p3c3p4k59sks99ck98">HDT</a> | 
+        Time: <span id="clock"></span>
+</b>
+</div>
+</div>
+<script src="./111.js"></script>
+<script>
+    var fps = document.getElementById("fps"), startTime = Date.now(), frame=0;
+    function tick(){var t=Date.now();frame++;if(t-startTime>1000){fps.innerHTML=(frame/((t-startTime)/1000)).toFixed(1);startTime=t;frame=0;}requestAnimationFrame(tick);} tick();
+
+    function updateTime(){
+      var now=new Date(),h=String(now.getHours()).padStart(2,"0"),m=String(now.getMinutes()).padStart(2,"0"),s=String(now.getSeconds()).padStart(2,"0");
+      var d=now.getDate(),mo=now.getMonth()+1,y=now.getFullYear();
+      document.getElementById("clock").innerHTML=h+":"+m+":"+s;
+      document.getElementById("dateDisplay").innerHTML=`Hôm nay là ngày ${d}/${mo}/${y}`;
+      document.title=`Key Ngày ${d}/${mo}/${y} Là`;
+      setTimeout(updateTime,1000);
+    }
+    function getQueryParam(){
+      const key=new URLSearchParams(window.location.search).get('ma');
+      document.getElementById('keyInput').value=key?key:'No key found';
+    }
+    function toggleMusic(){
+      const music=document.getElementById('backgroundMusic'),btn=document.getElementById('musicButton');
+      if(music.paused){music.play();btn.textContent='Tắt nhạc';}
+      else{music.pause();btn.textContent='Bật nhạc';}
+    }
+    (async function(){
+       })();
+    window.addEventListener("load",()=>{updateTime();getQueryParam();});
+  </script>
+<table align="center">
+<div id="nothing" style="width:'800px'; height:'540px'; font-family:'tahoma'; font-weight:'bold'"></div>
+</table>
+<script language="JavaScript">
+if (document.all){
+Cols = 9; //number of falldown binary string
+Cl = 50; //maximum length of binary string
+Cs = 100; //number of pixels between binary strings
+Ts = 10; //font-size of binary string
+Tc = '#008800'; //color of binary string
+Tc1 = '#00ff00'; //color of 1st bit in binary string
+MnS = 22; //minimum speed of binary string
+MxS = 25; //maximum spees of binary string
+I = Cs;
+Sp = new Array(); //array speed of binary strings
+S = new Array(); //the position of binary string
+Y = new Array(); //array of position of binary strings
+C = new Array(); //array save bits of string
+M = new Array(); //binary string
+B = new Array(); //temp for creating binary string
+RC = new Array(); //length of binary strings
+E = new Array(); //array of head-bit in written strings
+Tcc = new Array(0,1,2,3,4,5,6,7,8,9); //array of head-bit in binary strings
+document.write("<div id='Container' style='position:absolute; top:0; left+Cs+"'>");
+for (i=0; i < Cols; i++){ //area to show binary strings
+S[i] = I += Cs; //calculate the position of binary string
+document.write("<div id='A' style='position:absolute; top:0; font-family:Arial;" +
+"font-size:" + Ts + "px; left:" + S[i] + "; width:" + Ts + "px;" +
+"height:0px; color:" + Tc + "; visibility:hidden'></div>");
+}
+document.write("</div>");
+}
+for(j = 0; j < Cols; j++){
+RC[j] = 1 + Math.round(Math.random()*Cl); //random length of the binary strings
+for(i=0; i < RC[j]; i++){
+B[i] = ""; //sign of ending of string
+C[i] = Math.round(Math.random())+' '; //get bit in binary strings
+B[0] += C[i];
+}
+M[j] = B[0]; //binary string
+Y[j] = 0; //1st position of strings are 0
+Sp[j] = Math.round(MnS+Math.random()*MxS); //random speed of binary strings
+}
+function Cycle(){
+Container.style.top = window.document.body.scrollTop;
+for (i=0; i < Cols; i++){
+var r = Math.floor(Math.random()*Tcc.length); //get a position in table Tcc
+E[i] = '<font color='+Tc1+'>'+Tcc[r]+'</font>'; //get the head-bit
+Y[i]+=Sp[i]; //the position of current string
+if (Y[i] > window.document.body.clientHeight) { //if at the end of window, calculate again
+i2 = 1 + Math.round(Math.random()*Cols);
+RC[i2] = 1 + Math.round(Math.random()*Cl);
+for(i3 = 0; i3 < RC[i2]; i3++){ //get bit in binary strings
+B[i3] = "";
+C[i3] = Math.round(Math.random())+' ';
+B[0] += C[i3];
+}
+M[i] = B[0];
+Y[i] = -Ts*M[i].length/1.5; //hide 2/3 string at beginning
+Sp[i] = Math.round(MnS+Math.random()*MxS); //random speed of binary strings
+A[i].style.visibility = 'visible';
+}
+A[i].style.top=Y[i]; //the i-th in tag div A
+A[i].innerHTML=M[i] + ' ' + E[i]; //show the binary string in tag A
+}
+setTimeout('Cycle()',100)
+}
+Cycle();
+</script>
+What do u want for me?!<br/>
+<center><b>Dont Forget Me</b></center>
+<p style="text-align:center"><a href="https://www.google.com/search?q=b%E1%BB%99+c%C3%B4ng+an" title="Click here if you want this"><img alt="IP Address Checker" border="0" height="125" src="https://www.wieistmeineip.de/ip-address/" width="125"/></a></p>
+<center><b></b></center>
+<p></p><p align="center"> <embed height="0" src="http://alfonsotr.somee.com/alfonso.swf" width="0"/></p></div>
+<!-- Popup Download -->
+<div id="downloadPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.7); z-index:9999; text-align:center;">
+<div style="background:#fff; color:#000; padding:20px; border-radius:10px; width:300px;
+    margin:10% auto; position:relative;">
+<h2>📥 Download Tool</h2>
+<div id="downloadButtons"></div>
+<br/>
+<button onclick="closeDownload()" style="background:red; color:#fff; border:none; padding:8px 16px;
+              border-radius:6px; cursor:pointer;">Đóng</button>
+</div>
+</div>
+<script>
+function openDownload(){
+  document.getElementById("downloadPopup").style.display = "block";
+}
+function closeDownload(){
+  document.getElementById("downloadPopup").style.display = "none";
+}
+</script>
+
+
+<script>
+function ub64(s){try{return decodeURIComponent(escape(atob(s)));}catch(e){return null;}}
+function parseCfgFromHash(){
+  const m = location.hash.match(/#cfg=([^&]+)/);
+  if(!m) return null;
+  const decoded = ub64(m[1]);
+  if(!decoded) return null;
+  try { return JSON.parse(decoded); } catch(e){ return null; }
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  let cfg = parseCfgFromHash();
+  let dlData, btns, msg;
+  if(cfg){
+    dlData = Array.isArray(cfg.customDownload)? cfg.customDownload : [];
+    btns = Array.isArray(cfg.customButtons)? cfg.customButtons : [];
+    msg = typeof cfg.customMessage === "string" ? cfg.customMessage : "";
+  } else {
+    dlData = JSON.parse(localStorage.getItem("customDownload")||"[]");
+    btns = JSON.parse(localStorage.getItem("customButtons")||"[]");
+    msg = localStorage.getItem("customMessage")||"";
+  }
+
+  // Render Download buttons in popup
+  const container = document.getElementById("downloadButtons");
+  if(container){
+    if(Array.isArray(dlData) && dlData.length > 0){
+      container.innerHTML = "";
+      dlData.forEach(d=>{
+        if(d && d.name && d.link){
+          const btn = document.createElement("button");
+          btn.textContent = "⬇️ " + d.name;
+          btn.style = "display:block; margin:10px auto; background:#03fcec; border:none; padding:10px 20px; border-radius:6px; cursor:pointer;";
+          btn.onclick = ()=>{ window.open(d.link, "_blank"); };
+          container.appendChild(btn);
+        }
+      });
+    } else {
+      container.innerHTML = "<p>⚠️ Chưa có link tải nào</p>";
+    }
+  }
+
+  // (Optional) Render message/buttons somewhere if needed
+});
+</script>
+
+<div id="notifyOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999;">
+  <div style="background:#2e2e2e; color:white; width:90%; max-width:400px; margin:100px auto; padding:20px; border-radius:10px; text-align:center; position:relative;">
+    <h2 id="notifyTitle" style="margin:0 0 10px; font-size:20px;">Thông báo</h2>
+    <p id="notifyMsg" style="margin-bottom:20px;">Nội dung ở đây</p>
+    <button onclick="closeNotify()" style="padding:8px 16px; background:#28a745; border:none; border-radius:5px; color:white; cursor:pointer;">Đóng</button>
+  </div>
+</div>
+
+<script>
+
+
+/
+<div id="notifyOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999;">
+  <div style="background:#2e2e2e; color:white; width:90%; max-width:400px; margin:100px auto; padding:20px; border-radius:10px; text-align:center; position:relative;">
+    <h2 id="notifyTitle" style="margin:0 0 10px; font-size:20px;">Thông báo</h2>
+    <p id="notifyMsg" style="margin-bottom:20px;">Nội dung ở đây</p>
+    <button onclick="closeNotify()" style="padding:8px 16px; background:#28a745; border:none; border-radius:5px; color:white; cursor:pointer;">Đóng</button>
+  </div>
+</div>
+
+<div id="downloadTools" style="margin:20px 0; text-align:center;"></div>
+
+<script>
+function showNotify(title, msg){
+  document.getElementById("notifyTitle").innerText = title;
+  document.getElementById("notifyMsg").innerText = msg;
+  document.getElementById("notifyOverlay").style.display = "block";
+}
+function closeNotify(){
+  document.getElementById("notifyOverlay").style.display = "none";
+}
+
+// Load thông báo từ localStorage
+let noticeData = JSON.parse(localStorage.getItem("customNotice")||"[]");
+if(noticeData.length > 0){
+  let last = noticeData[noticeData.length-1];
+  showNotify(last.title, last.msg);
+}
+
+// Load Download Tools
+function loadDownloadTools(){
+  let downloads = JSON.parse(localStorage.getItem("customDownload")||"[]");
+  let container = document.getElementById("downloadTools");
+  if(downloads.length > 0){
+    container.innerHTML = "";
+    downloads.forEach(d => {
+      let btn = document.createElement("button");
+      btn.innerText = d.name;
+      btn.style = "display:block; width:80%; margin:10px auto; padding:10px; background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer;";
+      btn.onclick = ()=>{ window.open(d.link, "_blank"); };
+      container.appendChild(btn);
+    });
+  } else {
+    container.innerHTML = "<p style='color:gray;'>Chưa có tool nào</p>";
+  }
+}
+loadDownloadTools();
+</script>
+
+
+  <script>
+    // ===== Tilt effect on hover/mousemove =====
+    (function(){
+      function attachTilt(el){
+        let rect;
+        function onMove(e){
+          rect = rect || el.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5;
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+          el.style.transform = `perspective(900px) rotateX(${-y*8}deg) rotateY(${x*10}deg) translateZ(0)`;
+        }
+        function onLeave(){
+          el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)';
+          rect = null;
+        }
+        el.addEventListener('mousemove', onMove);
+        el.addEventListener('mouseleave', onLeave);
+      }
+
+      // Mark common sections as tilt if they exist
+      const candidates = [
+        '#notificationPopup .popup-content',
+        '#announcementBox', '#greetingBox', '#downloadTools',
+        '.card', '.box', '.panel', '.container > .section', 'section', '.wrapper .section'
+      ];
+      candidates.forEach(sel => document.querySelectorAll(sel).forEach(el => el.setAttribute('data-tilt','')));
+
+      // Buttons (download tools etc.)
+      const buttonSelectors = ['#downloadTools button', '.download-list button', '.tool-item button', 'button'];
+      buttonSelectors.forEach(sel => document.querySelectorAll(sel).forEach(btn => btn.classList.add('btn-3d')));
+
+      // Ensure some visible items have glass & tilt if not already styled
+      const ensureGlass = ['#downloadTools', '#announcementBox', '#greetingBox'];
+      ensureGlass.forEach(sel => document.querySelectorAll(sel).forEach(box => box.classList.add('glass-card')));
+
+      // Attach tilt to all [data-tilt]
+      document.querySelectorAll('[data-tilt]').forEach(attachTilt);
+    })();
+  </script>
+
+
+
+
+
+
+
+<script>
+// --- Typewriter cho VIP titles ---
+
+            
+        }
+        loop();
+    }
+}
+
+function renderButtons() {
+    const container = document.getElementById("dynamic-buttons");
+    let buttons = JSON.parse(localStorage.getItem("buttons") || "[]");
+    if (container) {
+        container.innerHTML = "";
+        buttons.forEach((btn, index) => {
+            let el = document.createElement("a");
+            el.href = btn.link;
+            el.innerText = btn.text;
+            el.style.padding = "10px 15px";
+            el.style.borderRadius = "8px";
+            el.style.color = "#fff";
+            el.style.fontWeight = "bold";
+            el.style.textDecoration = "none";
+            el.style.background = "linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet)";
+            el.style.backgroundSize = "400% 400%";
+            el.style.animation = "rainbow 6s ease infinite";
+            container.appendChild(el);
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    renderVipTitles();
+    renderButtons();
+});
+
+// CSS Rainbow Animation
+const style = document.createElement('style');
+style.innerHTML = `
+@keyframes rainbow {
+    0% {background-position:0% 50%}
+    50% {background-position:100% 50%}
+    100% {background-position:0% 50%}
+}`;
+document.head.appendChild(style);
+</script>
+
+
+<!-- Modal thông báo (cửa sổ nổi trượt lên) -->
+<div id="customModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+  <div class="modal-content" style="background:#1e1e1e; color:#fff; width:90%; max-width:420px; border-radius:16px; padding:22px 24px; box-shadow:0 10px 30px rgba(0,0,0,0.5); transform:translateY(40px); opacity:0;">
+    <button class="close-btn" aria-label="Đóng" style="position:absolute; top:10px; right:12px; background:transparent; border:none; font-size:20px; cursor:pointer;">❌</button>
+    <h2 id="modalTitle" style="margin:0 0 10px; color:#ff3b3b; font-size:22px;"></h2>
+    <p id="modalMessage" style="margin:0; font-size:16px; line-height:1.5; color:#eaeaea;"></p>
+  </div>
+</div>
+
+<style>
+@keyframes modalFade { from {opacity:0} to {opacity:1} }
+@keyframes slideUp { from {transform: translateY(40px); opacity:0;} to {transform: translateY(0); opacity:1;} }
+.modal.show { display:flex !important; animation: modalFade .25s ease-out; }
+.modal.show .modal-content { animation: slideUp .35s ease-out both; }
+</style>
+
+<script>
+(function(){
+  function showNotification(title, message){
+    var overlay = document.getElementById("customModal");
+    var titleEl = document.getElementById("modalTitle");
+    var msgEl = document.getElementById("modalMessage");
+    if(!overlay || !titleEl || !msgEl) return;
+    titleEl.textContent = title || "";
+    msgEl.textContent = message || "";
+    overlay.classList.add("show");
+  }
+
+  function hideNotification(){
+    var overlay = document.getElementById("customModal");
+    if(overlay) overlay.classList.remove("show");
+    // small delay to hide after animation
+    setTimeout(function(){ if(overlay) overlay.style.display = "none"; }, 250);
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    // Lấy thông báo mới nhất từ admin: localStorage.customNotice = [{title, msg}, ...]
+    try {
+      var list = JSON.parse(localStorage.getItem("customNotice") || "[]");
+      if(Array.isArray(list) && list.length){
+        var last = list[list.length - 1];
+        // Lưu ý: thêm "To:" đỏ nếu đã sử dụng ở admin (giữ nguyên tiêu đề)
+        showNotification(last.title || "Thông báo", last.msg || "");
+        // ensure display:flex for animation
+        var overlay = document.getElementById("customModal");
+        if(overlay) overlay.style.display = "flex";
+      }
+    } catch(e){ console.warn("Không đọc được customNotice:", e); }
+
+    // Đóng khi bấm nút X hoặc click nền
+    var overlay = document.getElementById("customModal");
+    if(overlay){
+      overlay.addEventListener("click", function(ev){
+        if(ev.target.id === "customModal" || ev.target.classList.contains("close-btn")){
+          hideNotification();
+        }
+      });
+    }
+  });
+})();
+</script>
+
+
+<script>
+window.onload = function() {
+    const avatar = localStorage.getItem("avatar");
+    const name = localStorage.getItem("displayName");
+
+    if(avatar && document.getElementById("avatar")) {
+        document.getElementById("avatar").src = avatar;
+    }
+    if(name && document.getElementById("displayName")) {
+        document.getElementById("displayName").innerText = name;
+    }
+}
+</script>
+
+
+<div id="musicPlayer"></div>
+
+<script>
+window.onload = function() {
+    const avatar = localStorage.getItem("avatar");
+    const name = localStorage.getItem("displayName");
+    const music = localStorage.getItem("musicLink");
+
+    if(avatar && document.getElementById("avatar")) {
+        document.getElementById("avatar").src = avatar;
+    }
+    if(name && document.getElementById("displayName")) {
+        document.getElementById("displayName").innerText = name;
+    }
+    if(music && document.getElementById("musicPlayer")) {
+        let videoId = "";
+        try {
+            const url = new URL(music);
+            if(url.hostname.includes("youtube.com")) {
+                videoId = url.searchParams.get("v");
+            } else if(url.hostname.includes("youtu.be")) {
+                videoId = url.pathname.slice(1);
+            }
+        } catch(e) {}
+        if(videoId) {
+            document.getElementById("musicPlayer").innerHTML =
+              `<iframe width="0" height="0" src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}" 
+              frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        }
+    }
+}
+</script>
+
+
+  <h2>Danh sách tính năng</h2>
+  <ul id="featuresList"></ul>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "API_KEY",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      projectId: "PROJECT_ID"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    db.collection("features").orderBy("createdAt", "desc")
+      .onSnapshot(snapshot => {
+        const list = document.getElementById("featuresList");
+        list.innerHTML = "";
+        snapshot.forEach(doc => {
+          const li = document.createElement("li");
+          li.textContent = doc.data().name;
+          list.appendChild(li);
+        });
+      });
+  </script>
+</body>
+
+<script>
+// Typing effect cho phần giới thiệu
+let introMessages = JSON.parse(localStorage.getItem("customIntro")||"[]");
+if(!Array.isArray(introMessages) || introMessages.length===0) introMessages = [
+  "......",
+  "Contact Me : https://t.me/n0p3c3p4k59sks99ck98",
+  
+   
+];
+let introIndex = 0, introChar = 0, introDeleting = false;
+
+function typeIntro() {
+  const element = document.getElementById("typingIntro");
+  if (!element) return;
+  if (!introDeleting) {
+    element.innerHTML = introMessages[introIndex].substring(0, introChar+1);
+    introChar++;
+    if (introChar === introMessages[introIndex].length) {
+      introDeleting = true;
+      setTimeout(typeIntro, 1000);
+      return;
+    }
+  } else {
+    element.innerHTML = introMessages[introIndex].substring(0, introChar-1);
+    introChar--;
+    if (introChar === 0) {
+      introDeleting = false;
+      introIndex = (introIndex + 1) % introMessages.length;
+    }
+  }
+  setTimeout(typeIntro, introDeleting ? 50 : 100);
+}
+
+// Typing effect cho phần Key
+const urlParams = new URLSearchParams(window.location.search);
+let keyText = urlParams.get("c6") || "Không Có Dữ Liệu";
+let keyChar = 0;
+
+function typeKey() {
+  const keyElem = document.getElementById("typingKey");
+  if (!keyElem) return;
+  if (keyChar < keyText.length) {
+    keyElem.innerHTML += keyText.charAt(keyChar);
+    keyChar++;
+    setTimeout(typeKey, 50);
+  }
+}
+
+
+// ---- Render custom buttons under Copy Key ----
+(function(){
+  function renderButtons(){
+    var btnRow = document.getElementById('btnRow');
+    if(!btnRow) return;
+    var data = [];
+    try {
+      data = JSON.parse(localStorage.getItem('customButtons')||'[]');
+    } catch(e){ data = []; }
+    btnRow.innerHTML = '';
+    if(Array.isArray(data)){
+      data.forEach(function(b){
+        if(!b || !b.text) return;
+        var a = document.createElement('a');
+        a.textContent = b.text;
+        a.href = (b.link||'#');
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.style = "display:block; margin:30px auto; padding:10px 20px; background:#03fcec; color:#000; border:none; border-radius:6px; cursor:pointer;";
+   // 7-color gradient
+        a.style.background = 'linear-gradient(260deg, blue, violet)';
+       
+        a.style.color = '#427';
+        a.style.boxShadow = '0 4px 14px rgba(0,0,0,.25)';
+        a.style.backdropFilter = 'blur(2px)';
+        btnRow.appendChild(a);
+      });
+    }
+  }
+  // react to storage changes (other tab / admin)
+  window.addEventListener('storage', function(e){
+    if(e.key === 'customButtons') renderButtons();
+    if(e.key === 'vipTitles' || e.key === 'customIntro') { introIndex=0; introChar=0; introDeleting=false; loadIntroMessages(); }
+  });
+  // initial
+  renderButtons();
+})();
+
+// ---- Prefer VIP titles for typing intro ----
+function loadIntroMessages(){
+  var vips = [];
+  try { vips = JSON.parse(localStorage.getItem('vipTitles')||'[]'); } catch(e){ vips=[]; }
+  if(Array.isArray(vips) && vips.length>0){
+    introMessages = vips;
+  } else {
+    try {
+      var ci = JSON.parse(localStorage.getItem('customIntro')||'[]');
+      if(Array.isArray(ci) && ci.length>0) introMessages = ci;
+    } catch(e){}
+  }
+}
+loadIntroMessages();
+window.addEventListener("load", () => {
+  typeIntro();
+  typeKey();
+});
+</script>
+<style>
+.cursor {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  animation: blink 0.7s infinite;
+}
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+#keyBox {
+  border: 2px solid red;
+  padding: 10px;
+  border-radius: 10px;
+  background: #333;
+  margin: 10px auto;
+  width: fit-content;
+}
+#typingKey, #typingIntro {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: #fff;
+  display: inline-block;
+}
+</style>
+<script>
+function copyToClipboard(){
+  const keyElem = document.getElementById("typingKey");
+  if (!keyElem) {
+    alert("❌ Không tìm thấy key!");
+    return;
+  }
+  const text = keyElem.textContent.trim();
+  if (!text) {
+    alert("❌ Key trống!");
+    return;
+  }
+
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(()=>{
+      showToast("✅ Đã copy key!");
+    }).catch(err=>{
+      alert("❌ Lỗi copy: " + err);
+    });
+  } else {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    showToast("✅ Đã copy key!");
+  }
+}
+
+function showToast(msg){
+  const toast = document.createElement("div");
+  toast.textContent = msg;
+  toast.style.position = "fixed";
+  toast.style.bottom = "20px";
+  toast.style.right = "20px";
+  toast.style.background = "#4caf50";
+  toast.style.color = "#fff";
+  toast.style.padding = "10px 15px";
+  toast.style.borderRadius = "6px";
+  toast.style.font = "600 14px system-ui,sans-serif";
+  toast.style.zIndex = "9999";
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(),2000);
+}
+</script>
+<script>
+function toggleMusic(){
+  const music=document.getElementById('backgroundMusic');
+  const btn=document.getElementById('musicButton');
+  if(music.paused){
+    music.play();
+    btn.textContent="Tắt nhạc";
+  } else {
+    music.pause();
+    btn.textContent="Bật nhạc";
+  }
+}
+
+window.addEventListener("load", function(){
+  const music = document.getElementById("backgroundMusic");
+  if (music) {
+    music.play().then(()=>{
+      const btn=document.getElementById("musicButton");
+      if(btn) btn.textContent="Tắt nhạc";
+    }).catch(err=>{
+      console.warn("⚠️ Trình duyệt chặn autoplay, nhạc sẽ bật khi bạn nhấn nút.");
+    });
+  }
+});
+</script>
+<script>
+// Đọc dữ liệu từ localStorage và áp dụng vào Index
+window.addEventListener("load", function() {
+  // 1. Button tùy chỉnh
+  const btnData = localStorage.getItem("customButton");
+  if(btnData){
+    const {text, link} = JSON.parse(btnData);
+    const btn = document.createElement("button");
+    btn.textContent = text;
+    btn.style = "display:block; margin:30px auto; padding:10px 20px; background:#03fcec; color:#000; border:none; border-radius:6px; cursor:pointer;";
+    btn.onclick = ()=>window.open(link,"_blank");
+    document.body.appendChild(btn);
+  }
+
+  // 2. Popup
+  const popupMsg = localStorage.getItem("customPopup");
+  if(popupMsg){
+    try {
+    const parsed = JSON.parse(popupMsg);
+    const msg = parsed.msg || popupMsg;
+    const box = document.getElementById("notification-box");
+    if(box){
+      box.innerText = msg;
+      box.style.display = "block";
+      setTimeout(()=>{ box.style.display="none"; }, 5000);
+    }
+  } catch(e){
+    console.error("Lỗi parse popup:", e);
+  }
+    localStorage.removeItem("customPopup"); // hiển thị 1 lần
+  }
+
+  // 3. Đổi nhạc
+  const musicUrl = localStorage.getItem("customMusic");
+  if(musicUrl){
+    const music = document.getElementById("backgroundMusic");
+    if(music){
+      music.src = musicUrl;
+      music.play();
+    }
+  }
+});
+</script>
+<script>
+// Lưu thông tin truy cập vào localStorage kèm IP + Location
+(async function saveVisitorInfo(){
+  try {
+    const res = await fetch("https://ipinfo.io/json"); // free 1000 request/ngày
+    const data = await res.json();
+
+    const info = {
+      time: new Date().toLocaleString(),
+      ip: data.ip || "Unknown",
+      city: data.city || "",
+      country: data.country || "",
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      language: navigator.language,
+      screen: `${screen.width}x${screen.height}`,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+
+    let visitors = JSON.parse(localStorage.getItem("visitors") || "[]");
+    visitors.push(info);
+    localStorage.setItem("visitors", JSON.stringify(visitors));
+  } catch(e){
+    console.warn("Không lấy được IP/Location", e);
+  }
+})();
+</script>
+</html>
+
+<div id="dynamic-buttons" style="margin-top:15px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"></div>

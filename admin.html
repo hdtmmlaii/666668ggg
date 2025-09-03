@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel</title>
+  <style>
+.ip-row { cursor: pointer; }
+.ip-row.active { background:#eef; }
+.toggle { width:20px; text-align:center; font-weight:bold; }
+.sub-table { width:100%; border-collapse: collapse; margin-top:5px; }
+.sub-table th, .sub-table td { border:1px solid #ccc; padding:4px; }
+
+    :root{
+      --glass-bg: rgba(25,25,25,0.65);
+      --glass-border: rgba(255,255,255,0.08);
+    }
+    html, body { height: 100%; }
+    body {
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      color:#fff;
+      background: radial-gradient(1200px 600px at 10% 10%, #151515, transparent),
+                  radial-gradient(1000px 500px at 90% 90%, #0b0b0b, transparent),
+                  linear-gradient(135deg, #111, #222);
+      overflow-x:hidden;
+    }
+    /* 4D gradient motion */
+    .bg-anim {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(600px 300px at 20% 30%, rgba(0,255,200,0.08), transparent),
+                  radial-gradient(700px 350px at 80% 70%, rgba(255,0,120,0.08), transparent);
+      animation: floatbg 12s ease-in-out infinite alternate;
+      filter: blur(40px);
+      transform: translateZ(0);
+      z-index: 1;
+    }
+    @keyframes floatbg {
+      from { transform: translate3d(-10px, -10px, 0); }
+      to   { transform: translate3d(10px, 10px, 0);  }
+    }
+
+    /* Fullscreen overlay */
+    #loginOverlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,0,0,0.55), rgba(0,0,0,0.75));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+    }
+    #loginBox {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      padding: 28px 24px;
+      border-radius: 16px;
+      width: min(92vw, 360px);
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.05);
+      transform: perspective(900px) rotateX(6deg) rotateY(-6deg);
+      transition: transform .5s ease, box-shadow .5s ease;
+    }
+    #loginBox:hover {
+      transform: perspective(900px) rotateX(0) rotateY(0) translateY(-2px);
+      box-shadow: 0 26px 60px rgba(0,0,0,0.8);
+    }
+    #loginBox h2 { margin: 0 0 6px 0; }
+    #loginBox p.sub { margin: 0 0 14px 0; opacity:.8; font-size:14px; }
+
+    .input {
+      width: 100%;
+      background: #0f0f10;
+      border: 1px solid #2a2a2d;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      outline: none;
+      transition: border .2s ease, box-shadow .2s ease;
+    }
+    .input:focus {
+      border-color: #5eead4;
+      box-shadow: 0 0 0 3px rgba(94,234,212,0.15);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 10px;
+      color: #fff;
+      background: linear-gradient(135deg, #06b6d4, #14b8a6);
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+    }
+    .btn:active { transform: translateY(1px) scale(.98); box-shadow: 0 6px 14px rgba(0,0,0,0.5); }
+    .msg-err { color:#f87171; font-size:13px; min-height: 18px; margin-top:6px; }
+
+    /* Hide admin content locked */
+    #adminContentWrapper.locked { display: none !important; }
+
+    /* Keep admin content on normal flow when unlocked */
+    #adminContentWrapper { position: relative; z-index: 2; }
+  </style>
+
+<style>
+.ip-row { cursor: pointer; }
+.ip-row.active { background:#eef; }
+.toggle { width:20px; text-align:center; font-weight:bold; }
+.sub-table { width:100%; border-collapse: collapse; margin-top:5px; }
+.sub-table th, .sub-table td { border:1px solid #ccc; padding:4px; }
+
+/* Rainbow button */
+.rainbow-btn {
+  background: linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
+  background-size: 1400% 1400%;
+  animation: rainbow 8s ease infinite;
+  color: #fff !important;
+  font-weight: bold;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px 0;
+  border-radius: 8px;
+  display: block;
+  width: 100%;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.rainbow-btn:hover {
+  transform: scale(1.05);
+}
+@keyframes rainbow {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* Gradient title */
+.gradient-title {
+  font-weight: bold;
+  font-size: 18px;
+  background: linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00ab);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hue 3s infinite linear;
+}
+@keyframes hue {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+/* Marquee text */
+.marquee {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.marquee span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 15s linear infinite;
+}
+@keyframes marquee {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(-100%, 0); }
+}
+</style>
+
+</head>
+<body>
+  <div class="bg-anim"></div>
+
+  <!-- LOGIN OVERLAY -->
+  <div id="loginOverlay" aria-hidden="true">
+    <div id="loginBox">
+      <h2></h2>
+      <p class="sub">C666</p>
+      <input class="input" type="password" id="passwordInput" placeholder="••••••••••">
+      <button class="btn" onclick="checkPassword()"></button>
+      <div class="msg-err" id="loginMsg"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN CONTENT WRAPPER (hidden until login) -->
+  <div id="adminContentWrapper" class="locked">
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <style>
+.ip-row { cursor: pointer; }
+.ip-row.active { background:#eef; }
+.toggle { width:20px; text-align:center; font-weight:bold; }
+.sub-table { width:100%; border-collapse: collapse; margin-top:5px; }
+.sub-table th, .sub-table td { border:1px solid #ccc; padding:4px; }
+
+    body { font-family: Arial, sans-serif; margin: 20px; background:#111; color:#fff; }
+    h1 { color:#0ff; }
+    section { margin-bottom: 30px; padding:15px; background:#1a1a1a; border-radius:10px; }
+    label { display:block; margin-top:10px; font-weight:bold; }
+    input { width:100%; padding:8px; margin-top:5px; border-radius:5px; border:none; }
+    button { margin-top:10px; padding:8px 16px; background:#0ff; border:none; border-radius:6px; cursor:pointer; }
+    button:hover { background:#0cc; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid #444; padding:6px; }
+    th { background:#333; color:#0ff; }
+    .toast { position:fixed; bottom:20px; right:20px; background:#222; color:#0ff; padding:10px 15px; border-radius:6px; font-size:14px; }
+  </style>
+
+<style>
+.ip-row { cursor: pointer; }
+.ip-row.active { background:#eef; }
+.toggle { width:20px; text-align:center; font-weight:bold; }
+.sub-table { width:100%; border-collapse: collapse; margin-top:5px; }
+.sub-table th, .sub-table td { border:1px solid #ccc; padding:4px; }
+
+/* Rainbow button */
+.rainbow-btn {
+  background: linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
+  background-size: 1400% 1400%;
+  animation: rainbow 8s ease infinite;
+  color: #fff !important;
+  font-weight: bold;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px 0;
+  border-radius: 8px;
+  display: block;
+  width: 100%;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.rainbow-btn:hover {
+  transform: scale(1.05);
+}
+@keyframes rainbow {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* Gradient title */
+.gradient-title {
+  font-weight: bold;
+  font-size: 18px;
+  background: linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00ab);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hue 3s infinite linear;
+}
+@keyframes hue {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+/* Marquee text */
+.marquee {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.marquee span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 15s linear infinite;
+}
+@keyframes marquee {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(-100%, 0); }
+}
+</style>
+
+</head>
+<body>
+  <h1>Trang Quản Trị</h1>
+
+  <!-- Danh sách truy cập -->
+  <section>
+    <h2>1. Danh sách người dùng truy cập Index</h2>
+    <div id="deviceInfo">Đang tải...</div>
+    <button onclick="downloadVisitors()">⬇️ Tải danh sách (CSV)</button>
+    <button onclick="clearVisitors()">🗑️ Xóa toàn bộ</button>
+  </section>
+
+  <button onclick="resetData()" style="margin-top:20px;padding:10px 15px;background:red;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+      Reset Dữ Liệu
+    </button>
+    <script>
+      function resetData() {
+        localStorage.clear();
+        alert('Đã reset toàn bộ dữ liệu!');
+        location.reload();
+      }
+    </script>
+  <!-- Quản lý Popup -->
+
+  <!-- Quản lý Nhạc -->
+  <section>
+    <h2>4. Quản lý Nhạc</h2>
+    <label>Link nhạc MP3:</label>
+    <input type="text" id="musicUrl" placeholder="https://example.com/song.mp3">
+    <button onclick="addMusic()">➕ Thêm Nhạc</button>
+    <div id="musicList"></div>
+  </section>
+
+  <script>
+    // ========== TOAST =========
+    function showToast(msg){
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = msg + " (tự tắt sau 24h)";
+      document.body.appendChild(toast);
+      setTimeout(()=>toast.remove(), 5000); // hiển thị 5s
+    }
+
+    // ========== VISITORS =========
+    function parseDevice(ua){
+  ua = ua.toLowerCase();
+  let os = "Khác";
+  if(ua.includes("windows")) os = "Windows";
+  else if(ua.includes("android")) os = "Android";
+  else if(ua.includes("iphone") || ua.includes("ipad")) os = "iOS";
+  else if(ua.includes("mac os")) os = "MacOS";
+  else if(ua.includes("linux")) os = "Linux";
+
+  let browser = "Trình duyệt";
+  if(ua.includes("chrome") && !ua.includes("edg")) browser = "Chrome";
+  else if(ua.includes("safari") && !ua.includes("chrome")) browser = "Safari";
+  else if(ua.includes("firefox")) browser = "Firefox";
+  else if(ua.includes("edg")) browser = "Edge";
+
+  return os + " - " + browser;
+}
+
+const modelMap = {
+  // Samsung
+  "SM-A115F": "Samsung Galaxy A11",
+  "SM-A125F": "Samsung Galaxy A12",
+  "SM-A135F": "Samsung Galaxy A13",
+  "SM-A145F": "Samsung Galaxy A14",
+  "SM-A325F": "Samsung Galaxy A32",
+  "SM-A525F": "Samsung Galaxy A52",
+  "SM-G991B": "Samsung Galaxy S21",
+  "SM-G996B": "Samsung Galaxy S21+",
+  "SM-G998B": "Samsung Galaxy S21 Ultra",
+  "SM-S901B": "Samsung Galaxy S22",
+  "SM-S906B": "Samsung Galaxy S22+",
+  "SM-S908B": "Samsung Galaxy S22 Ultra",
+  "SM-S911B": "Samsung Galaxy S23",
+  "SM-S916B": "Samsung Galaxy S23+",
+  "SM-S918B": "Samsung Galaxy S23 Ultra",
+
+  // Xiaomi / Redmi
+  "Redmi Note 8": "Xiaomi Redmi Note 8",
+  "Redmi Note 9": "Xiaomi Redmi Note 9",
+  "Redmi Note 10": "Xiaomi Redmi Note 10",
+  "Redmi Note 11": "Xiaomi Redmi Note 11",
+  "Mi 9T": "Xiaomi Mi 9T",
+  "Mi 10": "Xiaomi Mi 10",
+  "Mi 11": "Xiaomi Mi 11",
+
+  // iPhone
+  "iPhone13,4": "iPhone 12 Pro Max",
+  "iPhone14,2": "iPhone 13 Pro",
+  "iPhone14,3": "iPhone 13 Pro Max",
+  "iPhone14,5": "iPhone 13",
+  "iPhone15,2": "iPhone 14 Pro",
+  "iPhone15,3": "iPhone 14 Pro Max",
+
+  // iPad
+  "iPad8,1": "iPad Pro 11-inch",
+  "iPad11,6": "iPad 8th Gen",
+
+  // OPPO
+  "CPH1931": "OPPO Reno2 F",
+  "CPH2001": "OPPO Reno3 Pro",
+  "CPH2219": "OPPO Reno6",
+  "CPH2309": "OPPO A16",
+  "CPH2333": "OPPO A17",
+  "CPH2359": "OPPO Reno7",
+  "CPH2385": "OPPO A57",
+  "CPH2411": "OPPO Reno8",
+  "CPH2481": "OPPO A78",
+  "CPH2493": "OPPO Reno10"
+};
+
+function getDeviceModel(ua){
+  ua = ua || "";
+  let model = "Không rõ";
+
+  // Lấy phần trong ngoặc
+  let match = ua.match(/\((.*?)\)/);
+  if(match && match[1]){
+    let parts = match[1].split(";");
+    parts.forEach(p=>{
+      p = p.trim();
+      if(modelMap[p]) model = modelMap[p];
+      else if(/^SM-/i.test(p)) model = modelMap[p] || p;
+      else if(/Redmi/i.test(p)) model = modelMap[p] || p;
+      else if(/Mi\s/i.test(p)) model = modelMap[p] || p;
+      else if(/OPPO|CPH/i.test(p)) model = modelMap[p] || p;
+      else if(/iPhone/i.test(p)) model = modelMap[p] || "iPhone";
+      else if(/iPad/i.test(p)) model = modelMap[p] || "iPad";
+    });
+  }
+
+  // Nếu chưa tìm thấy, thử match toàn chuỗi
+  if(model==="Không rõ"){
+    let m2 = ua.match(/(SM-[A-Z0-9]+|CPH\d+)/i);
+    if(m2) model = modelMap[m2[0]] || m2[0];
+  }
+
+  return model;
+}
+
+function loadVisitors(){
+  let visitors = JSON.parse(localStorage.getItem("visitors") || "[]");
+  if(visitors.length === 0){
+    document.getElementById("deviceInfo").innerHTML = "⚠️ Chưa có ai truy cập Index!";
+    return;
+  }
+
+  // Gom nhóm theo IP
+  let groups = {};
+  visitors.forEach(v=>{
+    if(!groups[v.ip]) groups[v.ip] = [];
+    groups[v.ip].push(v);
+  });
+
+  let html = "<table><tr><th></th><th>IP</th><th>Số lần</th><th>Xóa</th></tr>";
+  Object.keys(groups).forEach((ip, idx)=>{
+    let arr = groups[ip];
+
+    // dòng chính
+    html += `<tr class="ip-row" data-target="details-${idx}">
+      <td class="toggle">+</td>
+      <td>${ip}</td>
+      <td>${arr.length}</td>
+      <td><button onclick="deleteIP('${ip}')">🗑️</button></td>
+    </tr>`;
+
+    // dòng chi tiết (ẩn mặc định)
+    let detailTable = "<table class='sub-table'><tr><th>Thời gian</th><th>Thành phố</th><th>Quốc gia</th><th>Thiết bị</th><th>Tên máy</th><th>Ngôn ngữ</th></tr>";
+    arr.forEach(v=>{
+      detailTable += `<tr>
+        <td>${v.time}</td>
+        <td>${v.city}</td>
+        <td>${v.country}</td>
+        <td>${parseDevice(v.platform)}</td>
+        <td>${getDeviceModel(v.platform)}</td>
+        <td>${v.language}</td>
+      </tr>`;
+    });
+    detailTable += "</table>";
+
+    html += `<tr id="details-${idx}" class="details-row" style="display:none;">
+      <td colspan="3">${detailTable}</td>
+    </tr>`;
+  });
+  html += "</table>";
+  document.getElementById("deviceInfo").innerHTML = html;
+
+  // Gắn sự kiện click để toggle
+  document.querySelectorAll(".ip-row").forEach(row=>{
+    row.addEventListener("click", ()=>{
+      let target = document.getElementById(row.dataset.target);
+      let toggleCell = row.querySelector(".toggle");
+
+      if(target.style.display==="none"){
+        target.style.display = "table-row";
+        row.classList.add("active");
+        toggleCell.textContent = "-";
+      } else {
+        target.style.display = "none";
+        row.classList.remove("active");
+        toggleCell.textContent = "+";
+      }
+    });
+  });
+}
+
+
+function deleteIP(ip){
+  let visitors = JSON.parse(localStorage.getItem("visitors") || "[]");
+  visitors = visitors.filter(v => v.ip !== ip);
+  localStorage.setItem("visitors", JSON.stringify(visitors));
+  loadVisitors();
+}
+
+    // ========== BUTTON =========
+    function addButton(){
+      const text = document.getElementById("buttonText").value.trim();
+      const link = document.getElementById("buttonLink").value.trim();
+      if(!text || !link) return alert("Nhập đủ thông tin");
+      localStorage.setItem("customButton", JSON.stringify({text, link, ts: Date.now()}));
+      showToast("✅ Đã thêm button");
+      loadConfig();
+    }
+    function removeButton(){ localStorage.removeItem("customButton"); loadConfig(); showToast("❌ Đã xoá button"); }
+    function editButton(){
+      const data = JSON.parse(localStorage.getItem("customButton")||"null");
+      if(data){
+        document.getElementById("buttonText").value = data.text;
+        document.getElementById("buttonLink").value = data.link;
+      }
+    }
+
+    // ========== POPUP =========
+    function addPopup(){
+      const msg = document.getElementById("popupMsg").value.trim();
+      if(!msg) return alert("Nhập nội dung");
+      localStorage.setItem("customPopup", JSON.stringify({msg, ts: Date.now()}));
+      showToast("✅ Đã thêm thông báo");
+      loadConfig();
+    }
+    function removePopup(){ localStorage.removeItem("customPopup"); loadConfig(); showToast("❌ Đã xoá thông báo"); }
+    function editPopup(){
+      const data = JSON.parse(localStorage.getItem("customPopup")||"null");
+      if(data) document.getElementById("popupMsg").value = data.msg;
+    }
+
+    // ========== MUSIC =========
+    function addMusic(){
+      const url = document.getElementById("musicUrl").value.trim();
+      if(!url.endsWith(".mp3")) return alert("Link phải là MP3");
+      localStorage.setItem("customMusic", JSON.stringify({url, ts: Date.now()}));
+      showToast("✅ Đã thêm nhạc");
+      loadConfig();
+    }
+    function removeMusic(){ localStorage.removeItem("customMusic"); loadConfig(); showToast("❌ Đã xoá nhạc"); }
+    function editMusic(){
+      const data = JSON.parse(localStorage.getItem("customMusic")||"null");
+      if(data) document.getElementById("musicUrl").value = data.url;
+    }
+
+    // ========== LOAD CONFIG =========
+    function loadConfig(){
+      let btnData = JSON.parse(localStorage.getItem("customButton")||"null");
+      document.getElementById("buttonList").innerHTML = btnData ?
+        `${btnData.text} → ${btnData.link} 
+        <button onclick='editButton()'>✏️</button> 
+        <button onclick='removeButton()'>❌</button>` : "Chưa có button";
+
+      let popupData = JSON.parse(localStorage.getItem("customPopup")||"null");
+      document.getElementById("popupList").innerHTML = popupData ?
+        `${popupData.msg} 
+        <button onclick='editPopup()'>✏️</button> 
+        <button onclick='removePopup()'>❌</button>` : "Chưa có thông báo";
+
+      let musicData = JSON.parse(localStorage.getItem("customMusic")||"null");
+      document.getElementById("musicList").innerHTML = musicData ?
+        `${musicData.url} 
+        <button onclick='editMusic()'>✏️</button> 
+        <button onclick='removeMusic()'>❌</button>` : "Chưa có nhạc";
+    }
+
+    
+    // ========== INTRO =========
+    
+    let editIntroIndex = -1;
+    function addOrUpdateIntro(){
+      const txt = document.getElementById("introText").value.trim();
+      if(!txt) return alert("Nhập tiêu đề");
+      let intro = JSON.parse(localStorage.getItem("customIntro")||"[]");
+      if(editIntroIndex >= 0){
+        intro[editIntroIndex] = txt;
+        editIntroIndex = -1;
+        showToast("✏️ Đã cập nhật tiêu đề");
+      } else {
+        intro.push(txt);
+        showToast("✅ Đã thêm tiêu đề");
+      }
+      localStorage.setItem("customIntro", JSON.stringify(intro));
+      document.getElementById("introText").value = "";
+      loadConfig();
+    }
+    function editIntro(i){
+      let intro = JSON.parse(localStorage.getItem("customIntro")||"[]");
+      if(intro[i]){
+        document.getElementById("introText").value = intro[i];
+        editIntroIndex = i;
+      }
+    }
+    function removeIntro(i){
+      let intro = JSON.parse(localStorage.getItem("customIntro")||"[]");
+      intro.splice(i,1);
+      localStorage.setItem("customIntro", JSON.stringify(intro));
+      showToast("❌ Đã xoá tiêu đề");
+      loadConfig();
+    }
+    
+    // Init
+    loadVisitors();
+    loadConfig();
+  </script>
+
+    
+
+<hr>
+<h3>Quản lý Download Tool</h3>
+<input id="dlName" placeholder="Tên Tool" style="width:100%;margin:5px 0;">
+<input id="dlLink" placeholder="URL Tool" style="width:100%;margin:5px 0;">
+<button onclick="addDownload()">➕ Thêm / 💾 Cập nhật</button>
+
+<div id="downloadList"></div>
+
+<script>
+let editDownloadIndex = -1;
+
+function addDownload(){
+  let name = document.getElementById("dlName").value.trim();
+  let link = document.getElementById("dlLink").value.trim();
+  if(!name || !link) return alert("Nhập đầy đủ tên và URL");
+
+  let downloads = JSON.parse(localStorage.getItem("customDownload")||"[]");
+  if(editDownloadIndex >= 0){
+    downloads[editDownloadIndex] = {name, link};
+    editDownloadIndex = -1;
+  } else {
+    downloads.push({name, link});
+  }
+  localStorage.setItem("customDownload", JSON.stringify(downloads));
+  document.getElementById("dlName").value = "";
+  document.getElementById("dlLink").value = "";
+  loadDownload();
+}
+
+function editDownload(i){
+  let downloads = JSON.parse(localStorage.getItem("customDownload")||"[]");
+  document.getElementById("dlName").value = downloads[i].name;
+  document.getElementById("dlLink").value = downloads[i].link;
+  editDownloadIndex = i;
+}
+
+function removeDownload(i){
+  let downloads = JSON.parse(localStorage.getItem("customDownload")||"[]");
+  downloads.splice(i,1);
+  localStorage.setItem("customDownload", JSON.stringify(downloads));
+  loadDownload();
+}
+
+function loadDownload(){
+  let downloads = JSON.parse(localStorage.getItem("customDownload")||"[]");
+  if(downloads.length>0){
+    let html = "<table style='width:100%; border-collapse:collapse; margin-top:10px;'>";
+    html += "<tr><th>#</th><th>Tên Tool</th><th>URL</th><th>Hành động</th></tr>";
+    downloads.forEach((d,i)=>{
+      html += `<tr>
+        <td style='border:1px solid #444; padding:6px;'>${i+1}</td>
+        <td style='border:1px solid #444; padding:6px;'>${d.name}</td>
+        <td style='border:1px solid #444; padding:6px;'>${d.link}</td>
+        <td style='border:1px solid #444; padding:6px;'>
+          <button onclick="editDownload(${i})">✏️</button>
+          <button onclick="removeDownload(${i})">❌</button>
+        </td>
+      </tr>`;
+    });
+    html += "</table>";
+    document.getElementById("downloadList").innerHTML = html;
+  } else {
+    document.getElementById("downloadList").innerHTML = "Chưa có tool";
+  }
+}
+loadDownload();
+</script>
+
+
+
+
+    
+        
+
+
+<!-- Quản lý Button -->
+<h2>Quản lý Button</h2>
+<form id="buttonForm">
+  <input type="hidden" id="editIndex" value="-1">
+  <label>Nội dung: <input type="text" id="buttonText" required></label><br>
+  <label>Link: <input type="text" id="buttonLink" required></label><br>
+  <button type="submit">Thêm Button</button>
+</form>
+
+<table border="1" id="buttonTable" style="margin-top:10px;width:100%;border-collapse:collapse;">
+  <thead>
+    <tr><th>Nội dung</th><th>Link</th><th>Sửa</th><th>Xóa</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+function loadButtons(){
+  let buttons = JSON.parse(localStorage.getItem("customButtons")||"[]");
+  let tbody = document.querySelector("#buttonTable tbody");
+  tbody.innerHTML = "";
+  buttons.forEach((btn, i) => {
+    let row = document.createElement("tr");
+    row.innerHTML = `<td>${btn.text}</td>
+                     <td>${btn.link}</td>
+                     <td><button onclick="editButton(${i})">Sửa</button></td>
+                     <td><button onclick="deleteButton(${i})">Xóa</button></td>`;
+    tbody.appendChild(row);
+  });
+}
+function editButton(i){
+  let buttons = JSON.parse(localStorage.getItem("customButtons")||"[]");
+  document.getElementById("buttonText").value = buttons[i].text;
+  document.getElementById("buttonLink").value = buttons[i].link;
+  document.getElementById("editIndex").value = i;
+}
+function deleteButton(i){
+  let buttons = JSON.parse(localStorage.getItem("customButtons")||"[]");
+  buttons.splice(i,1);
+  localStorage.setItem("customButtons", JSON.stringify(buttons));
+  loadButtons();
+}
+document.getElementById("buttonForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  let text = document.getElementById("buttonText").value;
+  let link = document.getElementById("buttonLink").value;
+  let buttons = JSON.parse(localStorage.getItem("customButtons")||"[]");
+  let editIndex = parseInt(document.getElementById("editIndex").value);
+  if(editIndex >=0){
+    buttons[editIndex] = {text, link};
+    document.getElementById("editIndex").value = -1;
+  } else {
+    buttons.push({text, link});
+  }
+  localStorage.setItem("customButtons", JSON.stringify(buttons));
+  document.getElementById("buttonForm").reset();
+  loadButtons();
+});
+window.onload = loadButtons;
+</script>
+
+
+<!-- ========== Quản lý Tiêu đề VIP ========== -->
+<h2 style="margin-top:20px">Quản lý Tiêu đề VIP</h2>
+<form id="vipForm" onsubmit="return false;" style="margin-bottom:10px">
+  <input type="hidden" id="vipEditIndex" value="-1">
+  <label>Tiêu đề VIP:
+    <input type="text" id="vipInput" placeholder="Ví dụ: Contact Me : https://t.me/..." style="min-width:320px">
+  </label>
+  <button onclick="vipAddOrUpdate()">➕ Lưu</button>
+</form>
+
+<table id="vipTable" border="1" style="width:100%; border-collapse:collapse; background:#111; color:#fff">
+  <thead>
+    <tr>
+      <th style="padding:6px">#</th>
+      <th style="padding:6px; text-align:left">Tiêu đề</th>
+      <th style="padding:6px">Sửa</th>
+      <th style="padding:6px">Xóa</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+  function vipLoad(){
+    const data = JSON.parse(localStorage.getItem("vipTitles")||"[]");
+    const tbody = document.querySelector("#vipTable tbody");
+    tbody.innerHTML = "";
+    data.forEach((t,i)=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td style='padding:6px; text-align:center'>${i+1}</td>
+        <td style='padding:6px;'>${t}</td>
+        <td style='padding:6px; text-align:center'><button onclick="vipEdit(${i})">✏️</button></td>
+        <td style='padding:6px; text-align:center'><button onclick="vipDelete(${i})">🗑️</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  function vipAddOrUpdate(){
+    const input = document.getElementById("vipInput");
+    const editIdx = parseInt(document.getElementById("vipEditIndex").value);
+    let data = JSON.parse(localStorage.getItem("vipTitles")||"[]");
+    const val = (input.value||"").trim();
+    if(!val){ alert("Nhập tiêu đề VIP"); return; }
+    if(editIdx >= 0){
+      data[editIdx] = val;
+      document.getElementById("vipEditIndex").value = -1;
+    } else {
+      data.push(val);
+    }
+    localStorage.setItem("vipTitles", JSON.stringify(data));
+    input.value = "";
+    vipLoad();
+  }
+  function vipEdit(i){
+    const data = JSON.parse(localStorage.getItem("vipTitles")||"[]");
+    document.getElementById("vipInput").value = data[i] || "";
+    document.getElementById("vipEditIndex").value = i;
+  }
+  function vipDelete(i){
+    let data = JSON.parse(localStorage.getItem("vipTitles")||"[]");
+    data.splice(i,1);
+    localStorage.setItem("vipTitles", JSON.stringify(data));
+    vipLoad();
+  }
+  document.addEventListener("DOMContentLoaded", vipLoad);
+</script>
+
+
+<hr>
+<h3>Quản lý Avatar</h3>
+<input type="text" id="avatarInput" placeholder="Nhập link ảnh...">
+<button onclick="setAvatar()">Thêm / Sửa</button>
+<button onclick="removeAvatar()">Xóa</button>
+
+<h3>Quản lý Tên hiển thị</h3>
+<input type="text" id="nameInput" placeholder="Nhập tên hiển thị...">
+<button onclick="setName()">Thêm / Sửa</button>
+<button onclick="removeName()">Xóa</button>
+
+<script>
+function setAvatar() {
+    const link = document.getElementById("avatarInput").value;
+    if(link) {
+        localStorage.setItem("avatar", link);
+        alert("Đã lưu Avatar!");
+    }
+}
+
+function removeAvatar() {
+    localStorage.removeItem("avatar");
+    alert("Đã xóa Avatar!");
+}
+
+function setName() {
+    const name = document.getElementById("nameInput").value;
+    if(name) {
+        localStorage.setItem("displayName", name);
+        alert("Đã lưu Tên hiển thị!");
+    }
+}
+
+function removeName() {
+    localStorage.removeItem("displayName");
+    alert("Đã xóa Tên hiển thị!");
+}
+</script>
+
+
+<hr>
+<h3>Quản lý Nhạc</h3>
+<input type="text" id="musicInput" placeholder="Nhập link YouTube...">
+<button onclick="setMusic()">Thêm / Sửa</button>
+<button onclick="removeMusic()">Xóa</button>
+
+<script>
+function setMusic() {
+    const link = document.getElementById("musicInput").value;
+    if(link) {
+        localStorage.setItem("musicLink", link);
+        alert("Đã lưu link nhạc!");
+    }
+}
+
+function removeMusic() {
+    localStorage.removeItem("musicLink");
+    alert("Đã xóa link nhạc!");
+}
+</script>
+
+
+  <h2>Admin: Thêm tính năng</h2>
+  <input id="featureInput" type="text" placeholder="Nhập tính năng mới">
+  <button onclick="addFeature()">Thêm</button>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "API_KEY",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      projectId: "PROJECT_ID"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function addFeature() {
+      const input = document.getElementById("featureInput");
+      const feature = input.value.trim();
+      if (!feature) return alert("Nhập tính năng trước!");
+      await db.collection("features").add({
+        name: feature,
+        createdAt: new Date()
+      });
+      input.value = "";
+      alert("Đã thêm!");
+    }
+  </script>
+</body>
+
+</html>
+<hr>
+<h3>Quản lý Thông báo</h3>
+<input id="noticeTitle" placeholder="Tiêu đề" style="width:100%;margin:5px 0;">
+<textarea id="noticeMsg" placeholder="Nội dung thông báo" style="width:100%;height:80px;margin:5px 0;"></textarea>
+<button onclick="addNotice()">➕ Thêm / 💾 Cập nhật</button>
+<div id="noticeList"></div>
+
+<script>
+let editNoticeIndex = -1;
+
+function addNotice(){
+  let title = document.getElementById("noticeTitle").value.trim();
+  let msg = document.getElementById("noticeMsg").value.trim();
+  if(!title || !msg) return alert("Nhập đầy đủ tiêu đề và nội dung");
+
+  let notices = JSON.parse(localStorage.getItem("customNotice")||"[]");
+  if(editNoticeIndex >= 0){
+    notices[editNoticeIndex] = {title, msg};
+    editNoticeIndex = -1;
+  } else {
+    notices.push({title, msg});
+  }
+  localStorage.setItem("customNotice", JSON.stringify(notices));
+  document.getElementById("noticeTitle").value = "";
+  document.getElementById("noticeMsg").value = "";
+  loadNotice();
+}
+
+function editNotice(i){
+  let notices = JSON.parse(localStorage.getItem("customNotice")||"[]");
+  document.getElementById("noticeTitle").value = notices[i].title;
+  document.getElementById("noticeMsg").value = notices[i].msg;
+  editNoticeIndex = i;
+}
+
+function removeNotice(i){
+  let notices = JSON.parse(localStorage.getItem("customNotice")||"[]");
+  notices.splice(i,1);
+  localStorage.setItem("customNotice", JSON.stringify(notices));
+  loadNotice();
+}
+
+function loadNotice(){
+  let notices = JSON.parse(localStorage.getItem("customNotice")||"[]");
+  if(notices.length>0){
+    let html = "<table style='width:100%; border-collapse:collapse; margin-top:10px;'>";
+    html += "<tr><th>#</th><th>Tiêu đề</th><th>Nội dung</th><th>Hành động</th></tr>";
+    notices.forEach((n,i)=>{
+      html += `<tr>
+        <td style='border:1px solid #444; padding:6px;'>${i+1}</td>
+        <td style='border:1px solid #444; padding:6px;'>${n.title}</td>
+        <td style='border:1px solid #444; padding:6px;'>${n.msg}</td>
+        <td style='border:1px solid #444; padding:6px;'>
+          <button onclick="editNotice(${i})">✏️</button>
+          <button onclick="removeNotice(${i})">❌</button>
+        </td>
+      </tr>`;
+    });
+    html += "</table>";
+    document.getElementById("noticeList").innerHTML = html;
+  } else {
+    document.getElementById("noticeList").innerHTML = "Chưa có thông báo";
+  }
+}
+loadNotice();
+</script>
+
+  </div>
+
+  <script>
+  // Parallax tilt for login box
+  (() => {
+    const box = document.getElementById('loginBox');
+    const overlay = document.getElementById('loginOverlay');
+    let rect;
+    function onMove(e) {
+      rect = rect || box.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      box.style.transform = `perspective(900px) rotateX(${-y*10}deg) rotateY(${x*10}deg)`;
+    }
+    function onLeave() {
+      box.style.transform = 'perspective(900px) rotateX(0) rotateY(0)';
+      rect = null;
+    }
+    overlay.addEventListener('mousemove', onMove);
+    overlay.addEventListener('mouseleave', onLeave);
+  })();
+
+  // SHA-256
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  const CORRECT_HASH = "9bf4cead4d5faa75ab7b7698efcb4c23ee2523714287a703e35f72e3258e0e94";
+
+  async function checkPassword(){
+    const inp = document.getElementById('passwordInput');
+    const msg = document.getElementById('loginMsg');
+    const overlay = document.getElementById('loginOverlay');
+    const wrap = document.getElementById('adminContentWrapper');
+    const val = inp.value || '';
+    const hashed = await sha256(val);
+    if(hashed === CORRECT_HASH){
+      overlay.style.display = 'none';
+      wrap.classList.remove('locked');
+      // optional: remember session until tab closes
+      sessionStorage.setItem('admin_ok', '1');
+    } else {
+      msg.textContent = '!';
+    }
+  }
+
+  // Auto unlock if remembered for this tab
+  (function(){
+    if(sessionStorage.getItem('admin_ok') === '1'){
+      document.getElementById('loginOverlay').style.display='none';
+      document.getElementById('adminContentWrapper').classList.remove('locked');
+    }
+  })();
+  </script>
+
+    <button onclick="resetData()" style="margin-top:20px;padding:10px 15px;background:red;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+      Reset Dữ Liệu
+    </button>
+    <script>
+      function resetData() {
+        localStorage.clear();
+        alert('Đã reset toàn bộ dữ liệu!');
+        location.reload();
+      }
+    </script>
+        
+
+
+
+
+<hr>
+<h3>Quản lý Avatar</h3>
+<input type="text" id="avatarInput" placeholder="Nhập link ảnh...">
+<button onclick="setAvatar()">Thêm / Sửa</button>
+<button onclick="removeAvatar()">Xóa</button>
+
+<h3>Quản lý Tên hiển thị</h3>
+<input type="text" id="nameInput" placeholder="Nhập tên hiển thị...">
+<button onclick="setName()">Thêm / Sửa</button>
+<button onclick="removeName()">Xóa</button>
+
+<script>
+function setAvatar() {
+    const link = document.getElementById("avatarInput").value;
+    if(link) {
+        localStorage.setItem("avatar", link);
+        alert("Đã lưu Avatar!");
+    }
+}
+
+function removeAvatar() {
+    localStorage.removeItem("avatar");
+    alert("Đã xóa Avatar!");
+}
+
+function setName() {
+    const name = document.getElementById("nameInput").value;
+    if(name) {
+        localStorage.setItem("displayName", name);
+        alert("Đã lưu Tên hiển thị!");
+    }
+}
+
+function removeName() {
+    localStorage.removeItem("displayName");
+    alert("Đã xóa Tên hiển thị!");
+}
+</script>
+
+
+<hr>
+<h3>Quản lý Nhạc</h3>
+<input type="text" id="musicInput" placeholder="Nhập link YouTube...">
+<button onclick="setMusic()">Thêm / Sửa</button>
+<button onclick="removeMusic()">Xóa</button>
+
+<script>
+function setMusic() {
+    const link = document.getElementById("musicInput").value;
+    if(link) {
+        localStorage.setItem("musicLink", link);
+        alert("Đã lưu link nhạc!");
+    }
+}
+
+function removeMusic() {
+    localStorage.removeItem("musicLink");
+    alert("Đã xóa link nhạc!");
+}
+</script>
+
+
+  <h2>Admin: Thêm tính năng</h2>
+  <input id="featureInput" type="text" placeholder="Nhập tính năng mới">
+  <button onclick="addFeature()">Thêm</button>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "API_KEY",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      projectId: "PROJECT_ID"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function addFeature() {
+      const input = document.getElementById("featureInput");
+      const feature = input.value.trim();
+      if (!feature) return alert("Nhập tính năng trước!");
+      await db.collection("features").add({
+        name: feature,
+        createdAt: new Date()
+      });
+      input.value = "";
+      alert("Đã thêm!");
+    }
+  </script>
+</body>
+
+</html>
+
+<!-- Buttons Manager (patched) -->
+<section id="btnManagerPatch" style="margin-top:20px;border:1px dashed #0ff;padding:12px;border-radius:12px">
+  <div style="font-weight:700;margin-bottom:8px">Trình quản lý Button (bản ổn định)</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <input id="btnTextPatch" placeholder="Nội dung button" style="flex:1;min-width:220px;padding:10px;border-radius:10px;border:1px solid #333;background:#111;color:#fff">
+    <input id="btnLinkPatch" placeholder="Link: https://" style="flex:1;min-width:220px;padding:10px;border-radius:10px;border:1px solid #333;background:#111;color:#fff">
+    <button id="btnAddPatch" style="padding:10px 14px;border-radius:10px;background:#00e5ff;color:#00121a;font-weight:700;border:0">+ Thêm</button>
+  </div>
+  <div style="margin-top:12px;overflow:auto">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="text-align:left;padding:8px;border-bottom:1px solid #222">#</th>
+        <th style="text-align:left;padding:8px;border-bottom:1px solid #222">Nội dung</th>
+        <th style="text-align:left;padding:8px;border-bottom:1px solid #222">Link</th>
+        <th style="text-align:left;padding:8px;border-bottom:1px solid #222">Sửa</th>
+        <th style="text-align:left;padding:8px;border-bottom:1px solid #222">Xóa</th>
+      </tr></thead>
+      <tbody id="btnTablePatch"></tbody>
+    </table>
+  </div>
+</section>
+<script>
+(function(){
+  function getData(){
+    try{ return JSON.parse(localStorage.getItem('customButtons')||'[]')||[]; }catch(e){ return []; }
+  }
+  function setData(arr){
+    localStorage.setItem('customButtons', JSON.stringify(arr||[]));
+    render();
+  }
+  function render(){
+    var tb = document.getElementById('btnTablePatch'); if(!tb) return;
+    var data = getData();
+    tb.innerHTML = '';
+    if(!Array.isArray(data)) return;
+    data.forEach(function(b,idx){
+      var tr = document.createElement('tr');
+      var txt = (b && (b.text||b.label||b.title||b.name))||'';
+      var lnk = (b && (b.link||b.url))||'';
+      tr.innerHTML = '<td style="padding:8px">'+(idx+1)+'</td>' +
+                     '<td style="padding:8px">'+ (txt? txt.replace(/</g,'&lt;'): '') +'</td>' +
+                     '<td style="padding:8px">'+ (lnk? lnk.replace(/</g,'&lt;'): '') +'</td>' +
+                     '<td style="padding:8px"><button data-edit="'+idx+'" style="padding:6px 10px;border-radius:8px;background:#00e5ff;border:0">Sửa</button></td>' +
+                     '<td style="padding:8px"><button data-del="'+idx+'" style="padding:6px 10px;border-radius:8px;background:#ff4d4d;border:0">Xóa</button></td>';
+      tb.appendChild(tr);
+    });
+  }
+  document.addEventListener('click', function(ev){
+    var e = ev.target;
+    if(e.id==='btnAddPatch'){
+      var t = document.getElementById('btnTextPatch').value.trim();
+      var l = document.getElementById('btnLinkPatch').value.trim();
+      if(!t){ alert('Nhập nội dung button'); return; }
+      var d = getData();
+      d.push({text:t, link:l});
+      setData(d);
+      document.getElementById('btnTextPatch').value='';
+      document.getElementById('btnLinkPatch').value='';
+    }
+    if(e.dataset && e.dataset.edit){
+      var id = +e.dataset.edit;
+      var d = getData();
+      var cur = d[id]||{};
+      var nt = prompt('Sửa nội dung', cur.text||cur.label||cur.title||cur.name||'');
+      if(nt===null) return;
+      var nl = prompt('Sửa link', cur.link||cur.url||'');
+      if(nl===null) return;
+      d[id] = {text: nt.trim(), link: nl.trim()};
+      setData(d);
+    }
+    if(e.dataset && e.dataset.del){
+      var id = +e.dataset.del;
+      var d = getData();
+      d.splice(id,1);
+      setData(d);
+    }
+  });
+  render();
+})();
+  
+</script>
+
